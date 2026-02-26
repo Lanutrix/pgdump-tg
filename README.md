@@ -1,4 +1,4 @@
-# pgdump-tg
+# pgdump-telegram
 
 Lightweight Docker image (~15 MB) that automatically backs up a PostgreSQL database on a cron schedule and sends the gzipped dump to a Telegram chat via Bot API.
 
@@ -15,21 +15,21 @@ Lightweight Docker image (~15 MB) that automatically backs up a PostgreSQL datab
 ## Quick Start
 
 ```bash
-docker run -d --name pgdump-tg \
+docker run -d --name pgdump-telegram \
   -e TG_BOT_TOKEN="123456:ABC-DEF" \
   -e TG_CHAT_ID="-1001234567890" \
   -e PG_HOST="db" \
   -e PG_USER="postgres" \
   -e PG_PASSWORD="secret" \
   -e PG_DATABASE="mydb" \
-  pgdump-tg
+  pgdump-telegram
 ```
 
 ## Docker Compose
 
 ```yaml
 services:
-  pgdump-tg:
+  pgdump-telegram:
     build: .
     environment:
       TG_BOT_TOKEN: "123456:ABC-DEF"

@@ -45,7 +45,7 @@ echo "[INFO] Max dump size: $((MAX_DUMP_SIZE / 1024 / 1024)) MB"
 
 TG_API="https://api.telegram.org/bot${TG_BOT_TOKEN}"
 
-startup_msg=$'✅ <b>pgdump-tg started</b>\n\nSchedule: <code>'"${CRON_SCHEDULE}"$'</code>\nTimezone: <code>'"${TZ}"'</code>'
+startup_msg=$'✅ <b>pgdump-telegram started</b>\n\nSchedule: <code>'"${CRON_SCHEDULE}"$'</code>\nTimezone: <code>'"${TZ}"'</code>'
 
 tg_args=(-s -o /dev/null -w "%{http_code}" -F "chat_id=${TG_CHAT_ID}" -F "text=${startup_msg}" -F "parse_mode=HTML")
 if [ "${TG_CHAT_ID:0:1}" = "-" ] && [ -n "$TG_TOPIC_ID" ]; then
