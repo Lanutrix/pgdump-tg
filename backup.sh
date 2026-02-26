@@ -49,7 +49,7 @@ log "Starting backup of database '${PG_DATABASE}'..."
 export PGPASSWORD="${PG_PASSWORD}"
 if ! pg_dump -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" -d "$PG_DATABASE" | gzip > "$DUMP_FILE"; then
     log "ERROR: pg_dump failed"
-    send_message "⚠️ <b>Backup failed</b>%0A%0ADatabase: <code>${PG_DATABASE}</code>%0AError: pg_dump exited with error"
+    send_message $'⚠️ <b>Backup failed</b>\n\nDatabase: <code>'"${PG_DATABASE}"$'</code>\nError: pg_dump exited with error'
     rm -f "$DUMP_FILE"
     exit 1
 fi
@@ -59,7 +59,7 @@ FILE_SIZE=$(stat -c%s "$DUMP_FILE" 2>/dev/null || stat -f%z "$DUMP_FILE" 2>/dev/
 
 if [ -z "$FILE_SIZE" ] || [ "$FILE_SIZE" -eq 0 ]; then
     log "ERROR: Dump file is empty or missing"
-    send_message "⚠️ <b>Backup failed</b>%0A%0ADatabase: <code>${PG_DATABASE}</code>%0AError: dump file is empty"
+    send_message $'⚠️ <b>Backup failed</b>\n\nDatabase: <code>'"${PG_DATABASE}"$'</code>\nError: dump file is empty'
     rm -f "$DUMP_FILE"
     exit 1
 fi
@@ -71,7 +71,7 @@ log "Dump size: ${FILE_SIZE_MB} MB (${FILE_SIZE} bytes)"
 
 if [ "$FILE_SIZE" -gt "$MAX_DUMP_SIZE" ]; then
     log "WARN: Dump exceeds max size (${FILE_SIZE_MB} MB > ${MAX_SIZE_MB} MB)"
-    send_message "⚠️ <b>Dump too large</b>%0A%0ADatabase: <code>${PG_DATABASE}</code>%0ASize: ${FILE_SIZE_MB} MB%0ALimit: ${MAX_SIZE_MB} MB%0A%0AThe dump was not sent."
+    send_message $'⚠️ <b>Dump too large</b>\n\nDatabase: <code>'"${PG_DATABASE}"$'</code>\nSize: '"${FILE_SIZE_MB}"$' MB\nLimit: '"${MAX_SIZE_MB}"$' MB\n\nThe dump was not sent.'
     rm -f "$DUMP_FILE"
     exit 0
 fi
@@ -83,7 +83,7 @@ if echo "$RESPONSE" | grep -q '"ok":true'; then
     log "Backup sent successfully"
 else
     log "ERROR: Failed to send to Telegram. Response: ${RESPONSE}"
-    send_message "⚠️ <b>Backup upload failed</b>%0A%0ADatabase: <code>${PG_DATABASE}</code>%0ASize: ${FILE_SIZE_MB} MB%0ACheck container logs for details."
+    send_message $'⚠️ <b>Backup upload failed</b>\n\nDatabase: <code>'"${PG_DATABASE}"$'</code>\nSize: '"${FILE_SIZE_MB}"$' MB\nCheck container logs for details.'
 fi
 
 rm -f "$DUMP_FILE"
