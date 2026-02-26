@@ -10,6 +10,7 @@ Lightweight Docker image (~15 MB) that automatically backs up a PostgreSQL datab
 - Configurable max file size with Telegram Bot API 50 MB limit enforcement
 - Timezone support (default: MSK / Europe/Moscow)
 - Validates required env vars on startup — logs all missing ones and exits
+- Sends a startup connectivity check to Telegram — verifies bot token and chat ID before scheduling backups
 
 ## Quick Start
 
@@ -63,7 +64,7 @@ services:
 
 ## How It Works
 
-1. **Startup** — `entrypoint.sh` validates all required env vars. If any are missing, it logs which ones and exits with code 1.
+1. **Startup** — `entrypoint.sh` validates all required env vars. If any are missing, it logs which ones and exits with code 1. Then sends a test message to Telegram to verify bot token and chat ID — if it fails, the container exits immediately.
 2. **Cron** — A cron job is set up with the configured schedule. The container runs `crond` in the foreground.
 3. **Backup** — `backup.sh` runs `pg_dump`, pipes through `gzip`, and produces `dbname_YYYY-MM-DD_HH-MM.sql.gz`.
 4. **Size check** — If the compressed dump exceeds `MAX_DUMP_SIZE`, a text notification is sent instead of the file.

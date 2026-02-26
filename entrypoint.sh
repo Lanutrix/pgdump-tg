@@ -43,6 +43,24 @@ if [ -n "$TG_TOPIC_ID" ]; then
 fi
 echo "[INFO] Max dump size: $((MAX_DUMP_SIZE / 1024 / 1024)) MB"
 
+TG_API="https://api.telegram.org/bot${TG_BOT_TOKEN}"
+
+startup_msg="✅ <b>pgdump-tg started</b>%0ASchedule: <code>${CRON_SCHEDULE}</code>%0ATimezone: <code>${TZ}</code>"
+
+tg_args=(-s -o /dev/null -w "%{http_code}" -F "chat_id=${TG_CHAT_ID}" -F "text=${startup_msg}" -F "parse_mode=HTML")
+if [ "${TG_CHAT_ID:0:1}" = "-" ] && [ -n "$TG_TOPIC_ID" ]; then
+    tg_args+=(-F "message_thread_id=${TG_TOPIC_ID}")
+fi
+
+HTTP_CODE=$(curl "${tg_args[@]}" "${TG_API}/sendMessage")
+
+if [ "$HTTP_CODE" != "200" ]; then
+    echo "[ERROR] Telegram connectivity check failed (HTTP $HTTP_CODE). Verify TG_BOT_TOKEN, TG_CHAT_ID, and TG_TOPIC_ID."
+    exit 1
+fi
+
+echo "[INFO] Telegram connectivity OK"
+
 export -p > /etc/environment
 
 echo "$CRON_SCHEDULE /scripts/backup.sh >> /var/log/backup.log 2>&1" | crontab -
