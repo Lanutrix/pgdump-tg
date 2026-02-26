@@ -1,9 +1,13 @@
-name: Docker Hub
+name: Docker Publish
 
 on:
   push:
     branches: [main]
     tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-and-push:
@@ -18,10 +22,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/pgdump-telegram
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/pgdump-telegram
+            ghcr.io/${{ github.repository_owner }}/pgdump-telegram
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
